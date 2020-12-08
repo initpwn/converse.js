@@ -60,18 +60,18 @@ function fetchAndSetMUCDomain (controlboxview) {
     }
 }
 
-function openChatRoomFromURIClicked (ev) {
-    ev.preventDefault();
-    api.rooms.open(ev.target.href);
-}
-
-async function addView (model) {
-    const views = _converse.chatboxviews;
-    if (!views.get(model.get('id')) && model.get('type') === _converse.CHATROOMS_TYPE && model.isValid()) {
-        await model.initialized;
-        return views.add(model.get('id'), new _converse.ChatRoomView({ model }));
-    }
-}
+// function openChatRoomFromURIClicked (ev) {
+//     ev.preventDefault();
+//     api.rooms.open(ev.target.href);
+// }
+//
+// async function addView (model) {
+//     const views = _converse.chatboxviews;
+//     if (!views.get(model.get('id')) && model.get('type') === _converse.CHATROOMS_TYPE && model.isValid()) {
+//         await model.initialized;
+//         return views.add(model.get('id'), new _converse.ChatRoomView({ model }));
+//     }
+// }
 
 converse.plugins.add('converse-muc-views', {
     /* Dependencies are other plugins which might be
@@ -137,8 +137,11 @@ converse.plugins.add('converse-muc-views', {
 
         /************************ BEGIN Event Handlers ************************/
         api.listen.on('chatBoxViewsInitialized', () => {
-            _converse.chatboxviews.delegate('click', 'a.open-chatroom', openChatRoomFromURIClicked);
-            _converse.chatboxes.on('add', addView);
+            // FIXME: Find a new way to implement this
+            // _converse.chatboxviews.delegate('click', 'a.open-chatroom', openChatRoomFromURIClicked);
+
+            // TODO: Remove
+            // _converse.chatboxes.on('add', addView);
         });
 
         api.listen.on('clearSession', () => {
