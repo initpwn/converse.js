@@ -6,11 +6,18 @@ export default () => {
     return html`
         ${chatboxes.map(m => {
             if (m.get('type') === CONTROLBOX_TYPE) {
-                return html`<converse-controlbox></converse-controlbox>`;
+                return html`
+                    <converse-controlbox-toggle class="${!m.get('closed') ? 'hidden' : ''}"></converse-controlbox-toggle>
+                    <converse-controlbox id="controlbox" class="chatbox ${m.get('closed') ? 'hidden' : ''}"></converse-controlbox>
+                `;
             } else if (m.get('type') === CHATROOMS_TYPE) {
-                return html`<converse-muc jid="${m.get('jid')}"></converse-muc>`;
+                return html`
+                    <converse-muc jid="${m.get('jid')}" class="chatbox ${m.get('hidden') ? 'hidden' : ''}"></converse-muc>
+                `;
             } else {
-                return html`<converse-chat jid="${m.get('jid')}"></converse-chat>`;
+                return html`
+                    <converse-chat jid="${m.get('jid')}" class="chatbox ${m.get('hidden') ? 'hidden' : ''}"></converse-chat>
+                `;
             }
         })}
     `;

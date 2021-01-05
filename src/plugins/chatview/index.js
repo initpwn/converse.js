@@ -24,15 +24,6 @@ function onWindowStateChanged (data) {
     }
 }
 
-function onChatBoxViewsInitialized () {
-    const views = _converse.chatboxviews;
-    _converse.chatboxes.on('add', async item => {
-        if (!views.get(item.get('id')) && item.get('type') === _converse.PRIVATE_CHAT_TYPE) {
-            await item.initialized;
-            views.add(item.get('id'), new _converse.ChatBoxView({ model: item }));
-        }
-    });
-}
 
 converse.plugins.add('converse-chatview', {
     /* Plugin dependencies are other plugins which might be
@@ -77,7 +68,6 @@ converse.plugins.add('converse-chatview', {
 
         _converse.ChatBoxView = ChatBoxView;
 
-        api.listen.on('chatBoxViewsInitialized', onChatBoxViewsInitialized);
         api.listen.on('windowStateChanged', onWindowStateChanged);
         api.listen.on('connected', () => api.disco.own.features.add(Strophe.NS.SPOILER));
     }

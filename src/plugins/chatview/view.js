@@ -40,7 +40,7 @@ const ChatBoxView = View.extend({
         this.initDebounced();
 
         this.listenTo(this.model, 'change:composing_spoiler', this.renderMessageForm);
-        this.listenTo(this.model, 'change:hidden', m => (m.get('hidden') ? this.hide() : this.show()));
+        this.listenTo(this.model, 'change:hidden', m => (!m.get('hidden') && this.show()));
         this.listenTo(this.model, 'change:status', this.onStatusMessageChanged);
         this.listenTo(this.model, 'destroy', this.remove);
         this.listenTo(this.model, 'show', this.show);
@@ -932,11 +932,6 @@ const ChatBoxView = View.extend({
         api.settings.get('auto_focus') && this.focus();
     },
 
-    hide () {
-        this.el.classList.add('hidden');
-        return this;
-    },
-
     afterShown () {
         this.model.clearUnreadMsgCounter();
         this.model.setChatState(_converse.ACTIVE);
@@ -953,12 +948,7 @@ const ChatBoxView = View.extend({
             this.maybeFocus();
             return;
         }
-        if (api.settings.get('animate')) {
-            u.fadeIn(this.el, () => this.afterShown());
-        } else {
-            u.showElement(this.el);
-            this.afterShown();
-        }
+        this.afterShown();
     },
 
     showNewMessagesIndicator () {
