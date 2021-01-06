@@ -7,7 +7,7 @@
 import '../../components/muc-sidebar';
 import '../chatview/index.js';
 import '../modal.js';
-import ChatRoomViewMixin from './muc.js';
+import MUCView from './muc.js';
 import MUCConfigForm from './config-form.js';
 import MUCPasswordForm from './password-form.js';
 import log from '@converse/headless/log';
@@ -63,14 +63,6 @@ function fetchAndSetMUCDomain (controlboxview) {
 // function openChatRoomFromURIClicked (ev) {
 //     ev.preventDefault();
 //     api.rooms.open(ev.target.href);
-// }
-//
-// async function addView (model) {
-//     const views = _converse.chatboxviews;
-//     if (!views.get(model.get('id')) && model.get('type') === _converse.CHATROOMS_TYPE && model.isValid()) {
-//         await model.initialized;
-//         return views.add(model.get('id'), new _converse.ChatRoomView({ model }));
-//     }
 // }
 
 converse.plugins.add('converse-muc-views', {
@@ -129,7 +121,7 @@ converse.plugins.add('converse-muc-views', {
 
         _converse.MUCConfigForm = MUCConfigForm;
         _converse.MUCPasswordForm = MUCPasswordForm;
-        _converse.ChatRoomView = _converse.ChatBoxView.extend(ChatRoomViewMixin);
+        _converse.ChatRoomView = MUCView;
         _converse.RoomsPanel = RoomsPanel;
         _converse.ControlBoxView && Object.assign(_converse.ControlBoxView.prototype, RoomsPanelViewMixin);
 

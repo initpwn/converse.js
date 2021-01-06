@@ -1,6 +1,7 @@
 import './config-form.js';
 import './password-form.js';
 import 'shared/autocomplete/index.js';
+import BaseChatView from 'shared/chatview.js';
 import MUCInviteModal from 'modals/muc-invite.js';
 import ModeratorToolsModal from 'modals/moderator-tools.js';
 import OccupantModal from 'modals/occupant.js';
@@ -14,7 +15,6 @@ import tpl_muc_disconnect from 'templates/muc_disconnect.js';
 import tpl_muc_nickname_form from 'templates/muc_nickname_form.js';
 import tpl_spinner from 'templates/spinner.js';
 import { $pres, Strophe } from 'strophe.js/src/strophe';
-import { ElementView } from '@converse/skeletor/src/element.js';
 import { Model } from '@converse/skeletor/src/model.js';
 import { __ } from 'i18n';
 import { _converse, api, converse } from '@converse/headless/core';
@@ -50,7 +50,7 @@ const COMMAND_TO_AFFILIATION = {
  * @namespace _converse.ChatRoomView
  * @memberOf _converse
  */
-export class MUCView extends ElementView {
+export default class MUCView extends BaseChatView {
     length = 300
     tagName = 'div'
     className = 'chatbox chatroom hidden'
@@ -117,7 +117,6 @@ export class MUCView extends ElementView {
         this.listenTo(this.model.occupants, 'remove', this.onOccupantRemoved);
 
         this.renderChatContent();
-        this.insertIntoDOM();
         // Register later due to await
         const user_settings = await _converse.api.user.settings.getModel();
         this.listenTo(user_settings, 'change:mucs_with_hidden_subject', this.renderHeading);
