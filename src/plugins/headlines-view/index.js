@@ -5,7 +5,7 @@
  */
 import '../chatview/index.js';
 import HeadlinesBoxViewMixin from './view.js';
-import { HeadlinesPanelMixin, HeadlinesPanel} from './panel.js';
+import { HeadlinesPanelMixin, HeadlinesPanel } from './panel.js';
 import { _converse, api, converse } from '@converse/headless/core';
 
 function onChatBoxViewsInitialized () {
@@ -29,15 +29,6 @@ converse.plugins.add('converse-headlines-view', {
      * NB: These plugins need to have already been loaded by the bundler
      */
     dependencies: ['converse-headlines', 'converse-chatview'],
-
-    overrides: {
-        ControlBoxView: {
-            renderControlBoxPane () {
-                this.__super__.renderControlBoxPane.apply(this, arguments);
-                this.renderHeadlinesPanel();
-            }
-        }
-    },
 
     initialize () {
         /* The initialize function gets called as soon as the plugin is
