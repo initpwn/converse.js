@@ -22,7 +22,6 @@ export class RoomsList extends ElementView {
         this.list_model.browserStorage = _converse.createStore(id);
         this.list_model.fetch();
         this.render();
-        this.insertIntoControlBox();
     }
 
     renderIfChatRoom (model) {
@@ -52,14 +51,6 @@ export class RoomsList extends ElementView {
             'toggleRoomsList': ev => this.toggleRoomsList(ev),
             'toggle_state': this.list_model.get('toggle-state')
         });
-    }
-
-    insertIntoControlBox () {
-        const controlboxview = _converse.chatboxviews.get('controlbox');
-        if (controlboxview !== undefined && !u.rootContains(_converse.root, this.el)) {
-            const el = controlboxview.el.querySelector('.list-container--openrooms');
-            el && el.parentNode.replaceChild(this.el, el);
-        }
     }
 
     showRoomDetailsModal (ev) { // eslint-disable-line class-methods-use-this
