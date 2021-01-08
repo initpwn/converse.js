@@ -468,19 +468,6 @@ export default class ChatView extends BaseChatView {
         textarea.focus();
     }
 
-    updateCharCounter (chars) {
-        if (api.settings.get('message_limit')) {
-            const message_limit = this.querySelector('.message-limit');
-            const counter = api.settings.get('message_limit') - chars.length;
-            message_limit.textContent = counter;
-            if (counter < 1) {
-                u.addClass('error', message_limit);
-            } else {
-                u.removeClass('error', message_limit);
-            }
-        }
-    }
-
     onPaste (ev) {
         if (ev.clipboardData.files.length !== 0) {
             ev.preventDefault();
