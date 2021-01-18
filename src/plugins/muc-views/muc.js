@@ -89,7 +89,6 @@ export default class MUCView extends BaseChatView {
             debounce(() => this.renderHeading(), 250)
         );
         this.listenTo(this.model, 'change:composing_spoiler', this.renderMessageForm);
-        this.listenTo(this.model, 'change:hidden', m => (m.get('hidden') ? this.hide() : this.show()));
         this.listenTo(this.model, 'change:hidden_occupants', this.onSidebarToggle);
         this.listenTo(this.model, 'configurationNeeded', this.getAndRenderConfigurationForm);
         this.listenTo(this.model, 'show', this.show);
@@ -736,7 +735,6 @@ export default class MUCView extends BaseChatView {
      * @method _converse.ChatRoomView#close
      */
     close () {
-        this.hide();
         if (_converse.router.history.getFragment() === 'converse/room?jid=' + this.model.get('jid')) {
             _converse.router.navigate('');
         }

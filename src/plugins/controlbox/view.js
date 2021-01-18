@@ -35,6 +35,8 @@ class ControlBoxView extends ElementView {
     }
 
     render () {
+        _converse.chatboxviews.add('controlbox', this);
+
         if (this.model.get('connected')) {
             if (this.model.get('closed') === undefined) {
                 this.model.set('closed', !api.settings.get('show_controlbox_by_default'));

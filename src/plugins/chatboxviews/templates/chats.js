@@ -13,11 +13,11 @@ export default () => {
                 `;
             } else if (m.get('type') === CHATROOMS_TYPE) {
                 return html`
-                    <converse-muc jid="${m.get('jid')}" class="chatbox ${m.get('hidden') ? 'hidden' : ''}"></converse-muc>
+                    <converse-muc jid="${m.get('jid')}" class="chatbox ${(m.get('hidden') || m.get('minimized')) ? 'hidden' : ''}"></converse-muc>
                 `;
             } else {
                 return html`
-                    <converse-chat jid="${m.get('jid')}" class="chatbox ${m.get('hidden') ? 'hidden' : ''}"></converse-chat>
+                    <converse-chat jid="${m.get('jid')}" class="chatbox ${(m.get('hidden') || m.get('minimized')) ? 'hidden' : ''}"></converse-chat>
                 `;
             }
         })}
