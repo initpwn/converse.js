@@ -75,8 +75,13 @@ export default class MUCView extends BaseChatView {
     }
 
     async initialize () {
-        this.model = _converse.chatboxes.get(this.getAttribute('jid'));
+        const jid = this.getAttribute('jid');
+        _converse.chatboxviews.add(jid, this);
+
+        this.model = _converse.chatboxes.get(jid);
         this.initDebounced();
+
+        api.listen.on('windowStateChanged', this.onWindowStateChanged);
 
         this.listenTo(
             this.model,
@@ -87,7 +92,6 @@ export default class MUCView extends BaseChatView {
         this.listenTo(this.model, 'change:hidden', m => (m.get('hidden') ? this.hide() : this.show()));
         this.listenTo(this.model, 'change:hidden_occupants', this.onSidebarToggle);
         this.listenTo(this.model, 'configurationNeeded', this.getAndRenderConfigurationForm);
-        this.listenTo(this.model, 'destroy', this.hide);
         this.listenTo(this.model, 'show', this.show);
         this.listenTo(this.model.features, 'change:moderated', this.renderBottomPanel);
         this.listenTo(this.model.features, 'change:open', this.renderHeading);

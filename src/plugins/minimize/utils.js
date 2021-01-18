@@ -21,13 +21,10 @@ function getChatBoxWidth (view) {
 }
 
 function getShownChats () {
-    return _converse.chatboxviews.filter((view) =>
+    return _converse.chatboxviews.filter(el =>
         // The controlbox can take a while to close,
-        // so we need to check its state. That's why we checked
-        // the 'closed' state.
-        !view.model.get('minimized') &&
-            !view.model.get('closed') &&
-            u.isVisible(view.el)
+        // so we need to check its state. That's why we checked the 'closed' state.
+        !el.model.get('minimized') && !el.model.get('closed') && u.isVisible(el)
     );
 }
 

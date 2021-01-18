@@ -35,8 +35,13 @@ export default class ChatView extends BaseChatView {
     }
 
     async initialize () {
-        this.model = _converse.chatboxes.get(this.getAttribute('jid'));
+        const jid = this.getAttribute('jid');
+        _converse.chatboxviews.add(jid, this);
+
+        this.model = _converse.chatboxes.get(jid);
         this.initDebounced();
+
+        api.listen.on('windowStateChanged', this.onWindowStateChanged);
 
         this.listenTo(this.model, 'change:composing_spoiler', this.renderMessageForm);
         this.listenTo(this.model, 'change:hidden', m => (!m.get('hidden') && this.show()));
@@ -186,18 +191,6 @@ export default class ChatView extends BaseChatView {
     async renderHeading () {
         const tpl = await this.generateHeadingTemplate();
         render(tpl, this.querySelector('.chat-head-chatbox'));
-    }
-
-    async getHeadingStandaloneButton (promise_or_data) { // eslint-disable-line class-methods-use-this
-        const data = await promise_or_data;
-        return html`
-            <a
-                href="#"
-                class="chatbox-btn ${data.a_class} fa ${data.icon_class}"
-                @click=${data.handler}
-                title="${data.i18n_title}"
-            ></a>
-        `;
     }
 
     async generateHeadingTemplate () {
@@ -785,17 +778,6 @@ export default class ChatView extends BaseChatView {
     viewUnreadMessages () {
         this.model.save({ 'scrolled': false, 'scrollTop': null });
         this.scrollDown();
-    }
-
-    onWindowStateChanged (state) {
-        if (state === 'visible') {
-            if (!this.model.isHidden() && this.model.get('num_unread', 0)) {
-                this.model.clearUnreadMsgCounter();
-            }
-        } else if (state === 'hidden') {
-            this.model.setChatState(_converse.INACTIVE, { 'silent': true });
-            this.model.sendChatState();
-        }
     }
 }
 

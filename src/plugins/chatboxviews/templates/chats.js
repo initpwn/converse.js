@@ -4,6 +4,7 @@ import { _converse } from '@converse/headless/core';
 export default () => {
     const { chatboxes, CONTROLBOX_TYPE, CHATROOMS_TYPE } = _converse;
     return html`
+        <converse-minimized-chats></converse-minimized-chats>
         ${chatboxes.map(m => {
             if (m.get('type') === CONTROLBOX_TYPE) {
                 return html`

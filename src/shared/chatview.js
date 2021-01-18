@@ -84,6 +84,18 @@ export default class BaseChatView extends ElementView {
         return this;
     }
 
+    async getHeadingStandaloneButton (promise_or_data) { // eslint-disable-line class-methods-use-this
+        const data = await promise_or_data;
+        return html`
+            <a
+                href="#"
+                class="chatbox-btn ${data.a_class} fa ${data.icon_class}"
+                @click=${data.handler}
+                title="${data.i18n_title}"
+            ></a>
+        `;
+    }
+
     hideNewMessagesIndicator () {
         const new_msgs_indicator = this.querySelector('.new-msgs-indicator');
         if (new_msgs_indicator !== null) {
@@ -226,6 +238,17 @@ export default class BaseChatView extends ElementView {
          * @example _converse.api.listen.on('chatBoxScrolledDown', obj => { ... });
          */
         api.trigger('chatBoxScrolledDown', { 'chatbox': this.model }); // TODO: clean up
+    }
+
+    onWindowStateChanged (state) {
+        if (state === 'visible') {
+            if (!this.model.isHidden() && this.model.get('num_unread', 0)) {
+                this.model.clearUnreadMsgCounter();
+            }
+        } else if (state === 'hidden') {
+            this.model.setChatState(_converse.INACTIVE, { 'silent': true });
+            this.model.sendChatState();
+        }
     }
 
     updateCharCounter (chars) {

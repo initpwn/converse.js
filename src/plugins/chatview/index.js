@@ -14,16 +14,6 @@ import chatview_api from './api.js';
 
 const { Strophe } = converse.env;
 
-function onWindowStateChanged (data) {
-    if (_converse.chatboxviews) {
-        _converse.chatboxviews.forEach(view => {
-            if (view.model.get('id') !== 'controlbox') {
-                view.onWindowStateChanged(data.state);
-            }
-        });
-    }
-}
-
 
 converse.plugins.add('converse-chatview', {
     /* Plugin dependencies are other plugins which might be
@@ -68,7 +58,6 @@ converse.plugins.add('converse-chatview', {
 
         _converse.ChatBoxView = ChatBoxView;
 
-        api.listen.on('windowStateChanged', onWindowStateChanged);
         api.listen.on('connected', () => api.disco.own.features.add(Strophe.NS.SPOILER));
     }
 });
