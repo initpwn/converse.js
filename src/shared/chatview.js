@@ -164,6 +164,65 @@ export default class BaseChatView extends ElementView {
         `;
     }
 
+    autocompleteInPicker (input, value) {
+        const emoji_dropdown = this.querySelector('converse-emoji-dropdown');
+        const emoji_picker = this.querySelector('converse-emoji-picker');
+        if (emoji_picker && emoji_dropdown) {
+            emoji_picker.model.set({
+                'ac_position': input.selectionStart,
+                'autocompleting': value,
+                'query': value
+            });
+            emoji_dropdown.showMenu();
+            return true;
+        }
+    }
+
+    onEmojiReceivedFromPicker (emoji) {
+        const model = this.querySelector('converse-emoji-picker').model;
+        const autocompleting = model.get('autocompleting');
+        const ac_position = model.get('ac_position');
+        this.insertIntoTextArea(emoji, autocompleting, false, ac_position);
+    }
+
+    /**
+     * Insert a particular string value into the textarea of this chat box.
+     * @private
+     * @method _converse.ChatBoxView#insertIntoTextArea
+     * @param {string} value - The value to be inserted.
+     * @param {(boolean|string)} [replace] - Whether an existing value
+     *  should be replaced. If set to `true`, the entire textarea will
+     *  be replaced with the new value. If set to a string, then only
+     *  that string will be replaced *if* a position is also specified.
+     * @param {integer} [position] - The end index of the string to be
+     * replaced with the new value.
+     */
+    insertIntoTextArea (value, replace = false, correcting = false, position) {
+        const textarea = this.querySelector('.chat-textarea');
+        if (correcting) {
+            u.addClass('correcting', textarea);
+        } else {
+            u.removeClass('correcting', textarea);
+        }
+        if (replace) {
+            if (position && typeof replace == 'string') {
+                textarea.value = textarea.value.replace(new RegExp(replace, 'g'), (match, offset) =>
+                    offset == position - replace.length ? value + ' ' : match
+                );
+            } else {
+                textarea.value = value;
+            }
+        } else {
+            let existing = textarea.value;
+            if (existing && existing[existing.length - 1] !== ' ') {
+                existing = existing + ' ';
+            }
+            textarea.value = existing + value + ' ';
+        }
+        this.updateCharCounter(textarea.value);
+        u.placeCaretAtEnd(textarea);
+    }
+
     /**
      * Called when the chat content is scrolled up or down.
      * We want to record when the user has scrolled away from
