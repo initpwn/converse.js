@@ -53,8 +53,8 @@ describe("Emojis", function () {
             }
             view.onKeyDown(tab_event);
             await u.waitUntil(() => view.querySelector('converse-emoji-picker .emoji-search').value === ':gri');
-            await u.waitUntil(() =>  sizzle('.emojis-lists__container--search .insert-emoji', view.el).length === 3, 1000);
-            let visible_emojis = sizzle('.emojis-lists__container--search .insert-emoji', view.el);
+            await u.waitUntil(() =>  sizzle('.emojis-lists__container--search .insert-emoji', view).length === 3, 1000);
+            let visible_emojis = sizzle('.emojis-lists__container--search .insert-emoji', view);
             expect(visible_emojis[0].getAttribute('data-emoji')).toBe(':grimacing:');
             expect(visible_emojis[1].getAttribute('data-emoji')).toBe(':grin:');
             expect(visible_emojis[2].getAttribute('data-emoji')).toBe(':grinning:');
@@ -131,8 +131,8 @@ describe("Emojis", function () {
                 'stopPropagation': function stopPropagation () {}
             };
             input.dispatchEvent(new KeyboardEvent('keydown', event));
-            await u.waitUntil(() =>  sizzle('.emojis-lists__container--search .insert-emoji', view.el).length === 3, 1000);
-            let emoji = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden) a', view.el).pop();
+            await u.waitUntil(() =>  sizzle('.emojis-lists__container--search .insert-emoji', view).length === 3, 1000);
+            let emoji = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden) a', view).pop();
             emoji.click();
             await u.waitUntil(() => textarea.value === ':grinning: ');
             textarea.value = ':grinning: :';
@@ -141,8 +141,8 @@ describe("Emojis", function () {
             await u.waitUntil(() => input.value === ':');
             input.value = ':grimacing';
             input.dispatchEvent(new KeyboardEvent('keydown', event));
-            await u.waitUntil(() =>  sizzle('.emojis-lists__container--search .insert-emoji', view.el).length === 1, 1000);
-            emoji = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden) a', view.el).pop();
+            await u.waitUntil(() =>  sizzle('.emojis-lists__container--search .insert-emoji', view).length === 1, 1000);
+            emoji = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden) a', view).pop();
             emoji.click();
             await u.waitUntil(() => textarea.value === ':grinning: :grimacing: ');
             done();
@@ -186,8 +186,8 @@ describe("Emojis", function () {
             await u.waitUntil(() => input.value === ':');
             input.dispatchEvent(new KeyboardEvent('keydown', tab_event));
             await u.waitUntil(() => input.value === ':100:');
-            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view.el).length === 1, 1000);
-            const emoji = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden) a', view.el).pop();
+            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view).length === 1, 1000);
+            const emoji = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden) a', view).pop();
             emoji.click();
             expect(textarea.value).toBe(':100: ');
             done();
@@ -206,7 +206,7 @@ describe("Emojis", function () {
             const toolbar = view.querySelector('converse-chat-toolbar');
             toolbar.querySelector('.toggle-emojis').click();
             await u.waitUntil(() => u.isVisible(view.querySelector('.emoji-picker__lists')));
-            await u.waitUntil(() => sizzle('converse-chat-toolbar .insert-emoji:not(.hidden)', view.el).length === 1589);
+            await u.waitUntil(() => sizzle('converse-chat-toolbar .insert-emoji:not(.hidden)', view).length === 1589);
 
             const input = view.querySelector('.emoji-search');
             input.value = 'smiley';
@@ -217,8 +217,8 @@ describe("Emojis", function () {
             };
             input.dispatchEvent(new KeyboardEvent('keydown', event));
 
-            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view.el).length === 2, 1000);
-            let visible_emojis = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view.el);
+            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view).length === 2, 1000);
+            let visible_emojis = sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view);
             expect(visible_emojis[0].getAttribute('data-emoji')).toBe(':smiley:');
             expect(visible_emojis[1].getAttribute('data-emoji')).toBe(':smiley_cat:');
 
@@ -230,19 +230,19 @@ describe("Emojis", function () {
             // Check that search results update when chars are deleted
             input.value = 'sm';
             input.dispatchEvent(new KeyboardEvent('keydown', event));
-            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view.el).length === 25, 1000);
+            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view).length === 25, 1000);
 
             input.value = 'smiley';
             input.dispatchEvent(new KeyboardEvent('keydown', event));
-            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view.el).length === 2, 1000);
+            await u.waitUntil(() => sizzle('.emojis-lists__container--search .insert-emoji:not(.hidden)', view).length === 2, 1000);
 
             // Test that TAB autocompletes the to first match
             const tab_event = Object.assign({}, event, {'keyCode': 9, 'key': 'Tab'});
             input.dispatchEvent(new KeyboardEvent('keydown', tab_event));
 
             await u.waitUntil(() => input.value === ':smiley:');
-            await u.waitUntil(() => sizzle(".emojis-lists__container--search .insert-emoji:not('.hidden')", view.el).length === 1, 1000);
-            visible_emojis = sizzle(".emojis-lists__container--search .insert-emoji:not('.hidden')", view.el);
+            await u.waitUntil(() => sizzle(".emojis-lists__container--search .insert-emoji:not('.hidden')", view).length === 1, 1000);
+            visible_emojis = sizzle(".emojis-lists__container--search .insert-emoji:not('.hidden')", view);
             expect(visible_emojis[0].getAttribute('data-emoji')).toBe(':smiley:');
 
             // Check that ENTER now inserts the match
