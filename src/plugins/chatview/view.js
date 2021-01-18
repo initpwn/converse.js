@@ -399,68 +399,6 @@ export default class ChatView extends BaseChatView {
         }
     }
 
-    async onFormSubmitted (ev) {
-        ev.preventDefault();
-        const textarea = this.querySelector('.chat-textarea');
-        const message_text = textarea.value.trim();
-        if (
-            (api.settings.get('message_limit') && message_text.length > api.settings.get('message_limit')) ||
-            !message_text.replace(/\s/g, '').length
-        ) {
-            return;
-        }
-        if (!_converse.connection.authenticated) {
-            const err_msg = __('Sorry, the connection has been lost, and your message could not be sent');
-            api.alert('error', __('Error'), err_msg);
-            api.connection.reconnect();
-            return;
-        }
-        let spoiler_hint,
-            hint_el = {};
-        if (this.model.get('composing_spoiler')) {
-            hint_el = this.querySelector('form.sendXMPPMessage input.spoiler-hint');
-            spoiler_hint = hint_el.value;
-        }
-        u.addClass('disabled', textarea);
-        textarea.setAttribute('disabled', 'disabled');
-        this.querySelector('converse-emoji-dropdown')?.hideMenu();
-
-        const is_command = this.parseMessageForCommands(message_text);
-        const message = is_command ? null : await this.model.sendMessage(message_text, spoiler_hint);
-        if (is_command || message) {
-            hint_el.value = '';
-            textarea.value = '';
-            u.removeClass('correcting', textarea);
-            textarea.style.height = 'auto';
-            this.updateCharCounter(textarea.value);
-        }
-        if (message) {
-            /**
-             * Triggered whenever a message is sent by the user
-             * @event _converse#messageSend
-             * @type { _converse.Message }
-             * @example _converse.api.listen.on('messageSend', message => { ... });
-             */
-            api.trigger('messageSend', message);
-        }
-        if (api.settings.get('view_mode') === 'overlayed') {
-            // XXX: Chrome flexbug workaround. The .chat-content area
-            // doesn't resize when the textarea is resized to its original size.
-            this.msgs_container.parentElement.style.display = 'none';
-        }
-        textarea.removeAttribute('disabled');
-        u.removeClass('disabled', textarea);
-
-        if (api.settings.get('view_mode') === 'overlayed') {
-            // XXX: Chrome flexbug workaround.
-            this.msgs_container.parentElement.style.display = '';
-        }
-        // Suppress events, otherwise superfluous CSN gets set
-        // immediately after the message, causing rate-limiting issues.
-        this.model.setChatState(_converse.ACTIVE, { 'silent': true });
-        textarea.focus();
-    }
-
     onPaste (ev) {
         if (ev.clipboardData.files.length !== 0) {
             ev.preventDefault();
@@ -562,10 +500,6 @@ export default class ChatView extends BaseChatView {
 
     getOwnMessages () {
         return this.model.messages.filter({ 'sender': 'me' });
-    }
-
-    onEnterPressed (ev) {
-        return this.onFormSubmitted(ev);
     }
 
     onEscapePressed (ev) {
