@@ -34,10 +34,6 @@ class ConverseChats extends ElementView {
     render () {
         render(tpl_chats(), this);
     }
-
-    closeAllChatBoxes () {
-        return Promise.all(Array.from(this.children).map(v => v.close({ 'name': 'closeAllChatBoxes' })));
-    }
 }
 
 api.elements.define('converse-chats', ConverseChats);

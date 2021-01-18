@@ -9,6 +9,10 @@ class ChatBoxViews {
         this.views[key] = val;
     }
 
+    get (key) {
+        return this.views[key];
+    }
+
     remove (key) {
         delete this.views[key];
     }
@@ -23,6 +27,10 @@ class ChatBoxViews {
 
     filter (f) {
         return Object.values(this.views).filter(f);
+    }
+
+    closeAllChatBoxes () {
+        return Promise.all(Object.values(this.views).map(v => v.close({ 'name': 'closeAllChatBoxes' })));
     }
 }
 
