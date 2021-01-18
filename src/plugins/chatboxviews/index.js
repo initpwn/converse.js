@@ -41,7 +41,7 @@ converse.plugins.add('converse-chatboxviews', {
 
         /************************ BEGIN Event Handlers ************************/
         api.listen.on('chatBoxesInitialized', () => {
-            _converse.chatboxes.on('destroy', m => _converse.chatboxviews.remove(m.getAttribute('jid')));
+            _converse.chatboxes.on('destroy', m => _converse.chatboxviews.remove(m.get('jid')));
         });
 
         api.listen.on('cleanup', () => delete _converse.chatboxviews);
