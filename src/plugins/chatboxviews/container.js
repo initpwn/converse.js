@@ -13,6 +13,10 @@ class ChatBoxViews {
         return this.views[key];
     }
 
+    keys () {
+        return Object.keys(this.views);
+    }
+
     remove (key) {
         delete this.views[key];
     }
