@@ -5,9 +5,9 @@ const $iq = converse.env.$iq;
 const { sizzle}  = converse.env;
 const u = converse.env.utils;
 
-describe("The Registration Panel", function () {
+fdescribe("The Registration Panel", function () {
 
-    fit("is not available unless allow_registration=true",
+    it("is not available unless allow_registration=true",
         mock.initConverse(
             ['chatBoxesInitialized'],
             { auto_login: false,
@@ -20,7 +20,7 @@ describe("The Registration Panel", function () {
         done();
     }));
 
-    it("can be opened by clicking on the registration tab",
+    fit("can be opened by clicking on the registration tab",
         mock.initConverse(
             ['chatBoxesInitialized'],
             { auto_login: false,
