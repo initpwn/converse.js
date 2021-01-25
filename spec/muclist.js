@@ -200,10 +200,11 @@ describe("A groupchat shown in the groupchats list", function () {
             .c('status').attrs({code:'110'});
         _converse.connection._dataRecv(mock.createRequest(presence));
 
-        await u.waitUntil(() => _converse.rooms_list_view.querySelectorAll(".open-room").length, 500);
-        const room_els = _converse.rooms_list_view.querySelectorAll(".open-room");
+        const rooms_list = document.querySelector('converse-rooms-list');
+        await u.waitUntil(() => rooms_list.querySelectorAll(".open-room").length, 500);
+        const room_els = rooms_list.querySelectorAll(".open-room");
         expect(room_els.length).toBe(1);
-        const info_el = _converse.rooms_list_view.querySelector(".room-info");
+        const info_el = rooms_list.querySelector(".room-info");
         info_el.click();
 
         const modal = _converse.api.modal.get('muc-details-modal');
@@ -266,13 +267,14 @@ describe("A groupchat shown in the groupchats list", function () {
         await u.waitUntil(() => lview.querySelectorAll(".open-room").length);
         let room_els = lview.querySelectorAll(".open-room");
         expect(room_els.length).toBe(1);
-        const close_el = _converse.rooms_list_view.querySelector(".close-room");
+        const rooms_list = document.querySelector('converse-rooms-list');
+        const close_el = rooms_list.querySelector(".close-room");
         close_el.click();
         expect(window.confirm).toHaveBeenCalledWith(
             'Are you sure you want to leave the groupchat lounge@conference.shakespeare.lit?');
 
         await new Promise(resolve => _converse.api.listen.once('chatBoxClosed', resolve));
-        room_els = _converse.rooms_list_view.querySelectorAll(".open-room");
+        room_els = rooms_list.querySelectorAll(".open-room");
         expect(room_els.length).toBe(0);
         expect(_converse.chatboxes.length).toBe(1);
         done();
@@ -288,7 +290,8 @@ describe("A groupchat shown in the groupchats list", function () {
         const u = converse.env.utils;
         await mock.openControlBox(_converse);
         const room_jid = 'kitchen@conference.shakespeare.lit';
-        await u.waitUntil(() => _converse.rooms_list_view !== undefined, 500);
+        const rooms_list = document.querySelector('converse-rooms-list');
+        await u.waitUntil(() => rooms_list !== undefined, 500);
         await mock.openAndEnterChatRoom(_converse, room_jid, 'romeo');
         const view = _converse.chatboxviews.get(room_jid);
         view.model.set({'minimized': true});
