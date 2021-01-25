@@ -13,6 +13,10 @@ class ChatBoxViews {
         return this.views[key];
     }
 
+    getAll () {
+        return Object.values(this.views);
+    }
+
     keys () {
         return Object.keys(this.views);
     }
