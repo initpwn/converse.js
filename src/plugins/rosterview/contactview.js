@@ -2,79 +2,38 @@ import log from "@converse/headless/log";
 import tpl_pending_contact from "./templates/pending_contact.js";
 import tpl_requesting_contact from "./templates/requesting_contact.js";
 import tpl_roster_item from "./templates/roster_item.js";
-import { ViewWithAvatar } from 'shared/avatar.js';
+import { ElementViewWithAvatar } from 'shared/avatar.js';
 import { __ } from 'i18n';
 import { _converse, api, converse } from "@converse/headless/core";
-import { debounce, without } from "lodash-es";
 import { render } from 'lit-html';
 
 const u = converse.env.utils;
 
-const STATUSES = {
-    'dnd': __('This contact is busy'),
-    'online': __('This contact is online'),
-    'offline': __('This contact is offline'),
-    'unavailable': __('This contact is unavailable'),
-    'xa': __('This contact is away for an extended period'),
-    'away': __('This contact is away')
-};
 
+class RosterContactView extends ElementViewWithAvatar {
 
-const RosterContactView = ViewWithAvatar.extend({
-    tagName: 'li',
-    className: 'list-item d-flex hidden controlbox-padded',
-
-    events: {
+    events = {
         "click .accept-xmpp-request": "acceptRequest",
         "click .decline-xmpp-request": "declineRequest",
         "click .open-chat": "openChat",
         "click .remove-xmpp-contact": "removeContact"
-    },
+    }
 
     async initialize () {
+        this.model = _converse.roster.get(this.getAttribute('id'));
         await this.model.initialized;
-        this.debouncedRender = debounce(this.render, 50);
-        this.listenTo(this.model, "change", this.debouncedRender);
-        this.listenTo(this.model, "destroy", this.remove);
-        this.listenTo(this.model, "highlight", this.highlight);
-        this.listenTo(this.model, "remove", this.remove);
-        this.listenTo(this.model, 'vcard:change', this.debouncedRender);
-        this.listenTo(this.model.presence, "change:show", this.debouncedRender);
+        this.listenTo(this.model, "change", this.render);
+        this.listenTo(this.model, "highlight", this.render);
+        this.listenTo(this.model, 'vcard:change', this.render);
+        this.listenTo(this.model.presence, "change:show", this.render);
         this.render();
-    },
+    }
 
     render () {
-        if (!this.mayBeShown()) {
-            u.hideElement(this.el);
-            return this;
-        }
-        const ask = this.model.get('ask'),
-            show = this.model.presence.get('show'),
-            requesting  = this.model.get('requesting'),
-            subscription = this.model.get('subscription'),
-            jid = this.model.get('jid');
-
-        const classes_to_remove = [
-            'current-xmpp-contact',
-            'pending-xmpp-contact',
-            'requesting-xmpp-contact'
-            ].concat(Object.keys(STATUSES));
-        classes_to_remove.forEach(c => u.removeClass(c, this.el));
-
-        this.el.classList.add(show);
-        this.el.setAttribute('data-status', show);
-        this.highlight();
-
-        if (_converse.isUniView()) {
-            const chatbox = _converse.chatboxes.get(this.model.get('jid'));
-            if (chatbox) {
-                if (chatbox.get('hidden')) {
-                    this.el.classList.remove('open');
-                } else {
-                    this.el.classList.add('open');
-                }
-            }
-        }
+        const ask = this.model.get('ask');
+        const requesting  = this.model.get('requesting');
+        const subscription = this.model.get('subscription');
+        const jid = this.model.get('jid');
 
         if ((ask === 'subscribe') || (subscription === 'from')) {
             /* ask === 'subscribe'
@@ -89,12 +48,10 @@ const RosterContactView = ViewWithAvatar.extend({
              *  So in both cases the user is a "pending" contact.
              */
             const display_name = this.model.getDisplayName();
-            this.el.classList.add('pending-xmpp-contact');
-            render(tpl_pending_contact(Object.assign(this.model.toJSON(), { display_name })), this.el);
+            render(tpl_pending_contact(Object.assign(this.model.toJSON(), { display_name })), this);
 
         } else if (requesting === true) {
             const display_name = this.model.getDisplayName();
-            this.el.classList.add('requesting-xmpp-contact');
             render(tpl_requesting_contact(
                 Object.assign(this.model.toJSON(), {
                     display_name,
@@ -102,33 +59,23 @@ const RosterContactView = ViewWithAvatar.extend({
                     'desc_decline': __("Click to decline the contact request from %1$s", display_name),
                     'allow_chat_pending_contacts': api.settings.get('allow_chat_pending_contacts')
                 })
-            ), this.el);
-        } else if (subscription === 'both' || subscription === 'to' || _converse.rosterview.isSelf(jid)) {
-            this.el.classList.add('current-xmpp-contact');
-            this.el.classList.remove(without(['both', 'to'], subscription)[0]);
-            this.el.classList.add(subscription);
+            ), this);
+        } else if (subscription === 'both' || subscription === 'to' || u.isSameBareJID(jid, _converse.connection.jid)) {
             this.renderRosterItem(this.model);
         }
         return this;
-    },
-
-    /**
-     * If appropriate, highlight the contact (by adding the 'open' class).
-     * @private
-     * @method _converse.RosterContactView#highlight
-     */
-    highlight () {
-        if (_converse.isUniView()) {
-            const chatbox = _converse.chatboxes.get(this.model.get('jid'));
-            if ((chatbox && chatbox.get('hidden')) || !chatbox) {
-                this.el.classList.remove('open');
-            } else {
-                this.el.classList.add('open');
-            }
-        }
-    },
+    }
 
     renderRosterItem (item) {
+        const STATUSES = {
+            'dnd': __('This contact is busy'),
+            'online': __('This contact is online'),
+            'offline': __('This contact is offline'),
+            'unavailable': __('This contact is unavailable'),
+            'xa': __('This contact is away for an extended period'),
+            'away': __('This contact is away')
+        };
+
         const show = item.presence.get('show') || 'offline';
         let status_icon;
         if (show === 'online') {
@@ -152,46 +99,23 @@ const RosterContactView = ViewWithAvatar.extend({
                 'num_unread': item.get('num_unread') || 0,
                 classes: ''
             })
-        ), this.el);
+        ), this);
         this.renderAvatar();
         return this;
-    },
-
-    /**
-     * Returns a boolean indicating whether this contact should
-     * generally be visible in the roster.
-     * It doesn't check for the more specific case of whether
-     * the group it's in is collapsed.
-     * @private
-     * @method _converse.RosterContactView#mayBeShown
-     */
-    mayBeShown () {
-        const chatStatus = this.model.presence.get('show');
-        if (api.settings.get('hide_offline_users') && chatStatus === 'offline') {
-            // If pending or requesting, show
-            if ((this.model.get('ask') === 'subscribe') ||
-                    (this.model.get('subscription') === 'from') ||
-                    (this.model.get('requesting') === true)) {
-                return true;
-            }
-            return false;
-        }
-        return true;
-    },
+    }
 
     openChat (ev) {
-        if (ev && ev.preventDefault) { ev.preventDefault(); }
+        ev?.preventDefault?.();
         this.model.openChat();
-    },
+    }
 
     async removeContact (ev) {
-        if (ev && ev.preventDefault) { ev.preventDefault(); }
+        ev?.preventDefault?.();
         if (!api.settings.get('allow_contact_removal')) { return; }
         if (!confirm(__("Are you sure you want to remove this contact?"))) { return; }
 
         try {
             await this.model.removeFromRoster();
-            this.remove();
             if (this.model.collection) {
                 // The model might have already been removed as
                 // result of a roster push.
@@ -203,10 +127,10 @@ const RosterContactView = ViewWithAvatar.extend({
                 [__('Sorry, there was an error while trying to remove %1$s as a contact.', this.model.getDisplayName())]
             );
         }
-    },
+    }
 
     async acceptRequest (ev) {
-        if (ev && ev.preventDefault) { ev.preventDefault(); }
+        ev?.preventDefault?.();
 
         await _converse.roster.sendContactAddIQ(
             this.model.get('jid'),
@@ -214,7 +138,7 @@ const RosterContactView = ViewWithAvatar.extend({
             []
         );
         this.model.authorize().subscribe();
-    },
+    }
 
     declineRequest (ev) {
         if (ev && ev.preventDefault) { ev.preventDefault(); }
@@ -224,6 +148,6 @@ const RosterContactView = ViewWithAvatar.extend({
         }
         return this;
     }
-});
+}
 
-export default RosterContactView;
+api.elements.define('converse-roster-contact', RosterContactView);

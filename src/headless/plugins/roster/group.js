@@ -4,6 +4,7 @@ import { _converse } from "@converse/headless/core";
 
 
 const RosterGroup = Model.extend({
+    idAttribute: 'name',
 
     initialize (attributes) {
         this.set(Object.assign({
@@ -12,6 +13,16 @@ const RosterGroup = Model.extend({
         }, attributes));
         // Collection of contacts belonging to this group.
         this.contacts = new _converse.RosterContacts();
+
+        _converse.roster.on('change:groups', this.onContactGroupChange);
+        _converse.roster.on('change:groups', this.onContactGroupChange);
+    },
+
+    onContactGroupChange (contact) {
+        const in_this_group = contact.get('groups').includes(this.get('name'));
+        if (!in_this_group) {
+            this.contacts.remove(contact);
+        }
     }
 });
 

@@ -1,6 +1,6 @@
-import RosterContactView from './contactview.js';
-import tpl_group_header from "./templates/group_header.js";
-import { OrderedListView } from "@converse/skeletor/src/overview";
+import './contactview.js';
+import tpl_group from "./templates/group_header.js";
+import { ElementView } from "@converse/skeletor/src/element";
 import { _converse, api, converse } from "@converse/headless/core";
 import { render } from 'lit-html';
 
@@ -11,72 +11,34 @@ const u = converse.env.utils;
  * @namespace _converse.RosterGroupView
  * @memberOf _converse
  */
-const RosterGroupView = OrderedListView.extend({
-    tagName: 'div',
-    className: 'roster-group hidden',
-    events: {
-        "click a.group-toggle": "toggle"
-    },
-
-    sortImmediatelyOnAdd: true,
-    ItemView: RosterContactView,
-    listItems: 'model.contacts',
-    listSelector: '.roster-group-contacts',
-    sortEvent: 'presenceChanged',
+class RosterGroupView extends ElementView {
+    sortEvent = 'presenceChanged'
 
     initialize () {
-        OrderedListView.prototype.initialize.apply(this, arguments);
-
-        if (this.model.get('name') === _converse.HEADER_UNREAD) {
-            this.listenTo(this.model.contacts, "change:num_unread",
-                c => !this.model.get('unread_messages') && this.removeContact(c)
-            );
-        }
-        if (this.model.get('name') === _converse.HEADER_REQUESTING_CONTACTS) {
-            this.listenTo(this.model.contacts, "change:requesting",
-                c => !c.get('requesting') && this.removeContact(c)
-            );
-        }
-        if (this.model.get('name') === _converse.HEADER_PENDING_CONTACTS) {
-            this.listenTo(this.model.contacts, "change:subscription",
-                c => (c.get('subscription') !== 'from') && this.removeContact(c)
-            );
-        }
-
-        this.listenTo(this.model.contacts, "remove", this.onRemove);
-        this.listenTo(_converse.roster, 'change:groups', this.onContactGroupChange);
-
-        // This event gets triggered once *all* contacts (i.e. not
-        // just this group's) have been fetched from browser
-        // storage or the XMPP server and once they've been
-        // assigned to their various groups.
-        api.listen.on('rosterContactsFetchedAndProcessed', () => this.sortAndPositionAllItems());
-    },
+        this.model = _converse.rostergroups.get(this.getAttribute('data-group'));
+        this.listenTo(this.model.contacts, "change", this.render);
+        this.render();
+    }
 
     render () {
-        this.el.setAttribute('data-group', this.model.get('name'));
-        render(tpl_group_header({
-            'label_group': this.model.get('name'),
+        render(tpl_group({
+            'toggle': ev => this.toggle(ev),
+            'contacts': this.model.contacts,
             'desc_group_toggle': this.model.get('description'),
-            'toggle_state': this.model.get('state')
-        }), this.el);
-        this.contacts_el = this.el.querySelector('.roster-group-contacts');
-        return this;
-    },
+            'label_group': this.model.get('name'),
+            'toggle_state': this.model.get('state'),
+        }), this);
+    }
 
     show () {
-        u.showElement(this.el);
+        u.showElement(this);
         if (this.model.get('state') === _converse.OPENED) {
             Object.values(this.getAll())
                 .filter(v => v.mayBeShown())
                 .forEach(v => u.showElement(v.el));
         }
         return this;
-    },
-
-    collapse () {
-        return u.slideIn(this.contacts_el);
-    },
+    }
 
     /* Given a list of contacts, make sure they're filtered out
      * (aka hidden) and that all other contacts are visible.
@@ -97,11 +59,11 @@ const RosterGroupView = OrderedListView.extend({
             }
         });
         if (shown) {
-            u.showElement(this.el);
+            u.showElement(this);
         } else {
-            u.hideElement(this.el);
+            u.hideElement(this);
         }
-    },
+    }
 
     /**
      * Given the filter query "q" and the filter type "type",
@@ -134,7 +96,7 @@ const RosterGroupView = OrderedListView.extend({
         } else  {
             return contacts.filter(c => !c.getFilterCriteria().includes(q));
         }
-    },
+    }
 
     /**
      * Filter the group's contacts based on the query "q".
@@ -156,51 +118,7 @@ const RosterGroupView = OrderedListView.extend({
             }
         }
         this.filterOutContacts(this.getFilterMatches(q, type));
-    },
-
-    async toggle (ev) {
-        if (ev && ev.preventDefault) { ev.preventDefault(); }
-        const icon_el = ev.target.matches('.fa') ? ev.target : ev.target.querySelector('.fa');
-        if (u.hasClass("fa-caret-down", icon_el)) {
-            this.model.save({state: _converse.CLOSED});
-            await this.collapse();
-            icon_el.classList.remove("fa-caret-down");
-            icon_el.classList.add("fa-caret-right");
-        } else {
-            icon_el.classList.remove("fa-caret-right");
-            icon_el.classList.add("fa-caret-down");
-            this.model.save({state: _converse.OPENED});
-            this.filter();
-            u.showElement(this.el);
-            u.slideOut(this.contacts_el);
-        }
-    },
-
-    onContactGroupChange (contact) {
-        const in_this_group = contact.get('groups').includes(this.model.get('name'));
-        const cid = contact.get('id');
-        const in_this_overview = !this.get(cid);
-        if (in_this_group && !in_this_overview) {
-            this.items.trigger('add', contact);
-        } else if (!in_this_group) {
-            this.removeContact(contact);
-        }
-    },
-
-    removeContact (contact) {
-        // We suppress events, otherwise the remove event will
-        // also cause the contact's view to be removed from the
-        // "Pending Contacts" group.
-        this.model.contacts.remove(contact, {'silent': true});
-        this.onRemove(contact);
-    },
-
-    onRemove (contact) {
-        this.remove(contact.get('jid'));
-        if (this.model.contacts.length === 0) {
-            this.remove();
-        }
     }
-});
+}
 
-export default RosterGroupView;
+api.elements.define('converse-roster-group', RosterGroupView);

@@ -39,7 +39,6 @@ export class RosterFilterView extends ElementView {
         this.listenTo(_converse.roster, "destroy", this.render);
         this.listenTo(_converse.roster, "remove", this.render);
         _converse.presences.on('change:show', this.render, this);
-        api.listen.on('rosterContactsFetchedAndProcessed', () => this.render());
 
         this.model.fetch();
         this.render();

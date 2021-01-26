@@ -191,6 +191,7 @@ describe("The Protocol", function () {
              *    </query>
              *  </iq>
              */
+
             spyOn(_converse.roster, "updateContact").and.callThrough();
             stanza = $iq({'type': 'set', 'from': _converse.bare_jid})
                 .c('query', {'xmlns': 'jabber:iq:roster'})
@@ -201,15 +202,17 @@ describe("The Protocol", function () {
                     'name': 'contact@example.org'});
             _converse.connection._dataRecv(mock.createRequest(stanza));
             expect(_converse.roster.updateContact).toHaveBeenCalled();
+
+            const rosterview = document.querySelector('converse-roster');
             // Check that the user is now properly shown as a pending
             // contact in the roster.
             await u.waitUntil(() => {
-                const header = sizzle('a:contains("Pending contacts")', _converse.rosterview.el).pop();
+                const header = sizzle('a:contains("Pending contacts")', rosterview).pop();
                 const contacts = Array.from(header.parentElement.querySelectorAll('li')).filter(u.isVisible);
                 return contacts.length;
             }, 600);
 
-            let header = sizzle('a:contains("Pending contacts")', _converse.rosterview.el).pop();
+            let header = sizzle('a:contains("Pending contacts")', rosterview).pop();
             let contacts = header.parentElement.querySelectorAll('li');
             expect(contacts.length).toBe(1);
             expect(u.isVisible(contacts[0])).toBe(true);
@@ -271,13 +274,12 @@ describe("The Protocol", function () {
             );
             expect(_converse.roster.updateContact).toHaveBeenCalled();
 
-            // The contact should now be visible as an existing
-            // contact (but still offline).
+            // The contact should now be visible as an existing contact (but still offline).
             await u.waitUntil(() => {
-                const header = sizzle('a:contains("My contacts")', _converse.rosterview.el);
-                return sizzle('li', header[0].parentNode).filter(l => u.isVisible(l)).length;
+                const header = sizzle('a:contains("My contacts")', rosterview).pop();
+                return sizzle('li', header?.parentNode).filter(l => u.isVisible(l)).length;
             }, 600);
-            header = sizzle('a:contains("My contacts")', _converse.rosterview.el);
+            header = sizzle('a:contains("My contacts")', rosterview);
             expect(header.length).toBe(1);
             expect(u.isVisible(header[0])).toBeTruthy();
             contacts = header[0].parentNode.querySelectorAll('li');
@@ -456,7 +458,8 @@ describe("The Protocol", function () {
             // We now have a contact we want to remove
             expect(_converse.roster.get(jid) instanceof _converse.RosterContact).toBeTruthy();
 
-            const header = sizzle('a:contains("My contacts")', _converse.rosterview.el).pop();
+            const rosterview = document.querySelector('converse-roster');
+            const header = sizzle('a:contains("My contacts")', rosterview).pop();
             await u.waitUntil(() => header.parentElement.querySelectorAll('li').length);
 
             // remove the first user
@@ -483,6 +486,7 @@ describe("The Protocol", function () {
              * </iq>
              */
             const sent_iq = _converse.connection.IQ_stanzas.pop();
+
             expect(Strophe.serialize(sent_iq)).toBe(
                 `<iq id="${sent_iq.getAttribute('id')}" type="set" xmlns="jabber:client">`+
                     `<query xmlns="jabber:iq:roster">`+
@@ -519,16 +523,19 @@ describe("The Protocol", function () {
             }).c('nick', {
                 'xmlns': Strophe.NS.NICK,
             }).t('Clint Contact');
+
+
             _converse.connection._dataRecv(mock.createRequest(stanza));
+            const rosterview = document.querySelector('converse-roster');
             await u.waitUntil(() => {
-                const header = sizzle('a:contains("Contact requests")', _converse.rosterview.el).pop();
-                const contacts = Array.from(header.parentElement.querySelectorAll('li')).filter(u.isVisible);
-                return contacts.length;
+                const header = sizzle('a:contains("Contact requests")', rosterview).pop();
+                return Array.from(header?.parentElement.querySelectorAll('li') ?? []).filter(u.isVisible)?.length;
             }, 500);
             expect(_converse.api.trigger).toHaveBeenCalledWith('contactRequest', jasmine.any(Object));
-            const header = sizzle('a:contains("Contact requests")', _converse.rosterview.el).pop();
+
+            const header = sizzle('a:contains("Contact requests")', rosterview).pop();
             expect(u.isVisible(header)).toBe(true);
-            const contacts = header.parentElement.querySelectorAll('li');
+            const contacts = header.nextElementSibling.querySelectorAll('li');
             expect(contacts.length).toBe(1);
             done();
         }));
