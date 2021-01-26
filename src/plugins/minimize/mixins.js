@@ -1,4 +1,4 @@
-import { api, converse } from '@converse/headless/core';
+import { _converse, api, converse } from '@converse/headless/core';
 
 const u = converse.env.utils;
 
@@ -30,9 +30,6 @@ export const minimizableChatBoxView = {
      * @returns {_converse.ChatBoxView|_converse.ChatRoomView}
      */
     onMaximized () {
-        const { _converse } = this.__super__;
-        this.insertIntoDOM();
-
         if (!this.model.isScrolledUp()) {
             this.model.clearUnreadMsgCounter();
         }
@@ -57,7 +54,6 @@ export const minimizableChatBoxView = {
      * @returns {_converse.ChatBoxView|_converse.ChatRoomView}
      */
     onMinimized (ev) {
-        const { _converse } = this.__super__;
         if (ev && ev.preventDefault) {
             ev.preventDefault();
         }
