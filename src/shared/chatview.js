@@ -160,6 +160,57 @@ export default class BaseChatView extends ElementView {
         api.trigger('chatBoxFocused', this, ev);
     }
 
+    getOwnMessages () {
+        return this.model.messages.filter({ 'sender': 'me' });
+    }
+
+    editEarlierMessage () {
+        let message;
+        let idx = this.model.messages.findLastIndex('correcting');
+        if (idx >= 0) {
+            this.model.messages.at(idx).save('correcting', false);
+            while (idx > 0) {
+                idx -= 1;
+                const candidate = this.model.messages.at(idx);
+                if (candidate.get('editable')) {
+                    message = candidate;
+                    break;
+                }
+            }
+        }
+        message =
+            message ||
+            this.getOwnMessages()
+                .reverse()
+                .find(m => m.get('editable'));
+        if (message) {
+            this.insertIntoTextArea(u.prefixMentions(message), true, true);
+            message.save('correcting', true);
+        }
+    }
+
+    editLaterMessage () {
+        let message;
+        let idx = this.model.messages.findLastIndex('correcting');
+        if (idx >= 0) {
+            this.model.messages.at(idx).save('correcting', false);
+            while (idx < this.model.messages.length - 1) {
+                idx += 1;
+                const candidate = this.model.messages.at(idx);
+                if (candidate.get('editable')) {
+                    message = candidate;
+                    break;
+                }
+            }
+        }
+        if (message) {
+            this.insertIntoTextArea(u.prefixMentions(message), true, true);
+            message.save('correcting', true);
+        } else {
+            this.insertIntoTextArea('', true, false);
+        }
+    }
+
     async getHeadingDropdownItem (promise_or_data) { // eslint-disable-line class-methods-use-this
         const data = await promise_or_data;
         return html`

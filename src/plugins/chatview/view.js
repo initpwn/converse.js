@@ -71,8 +71,7 @@ export default class ChatView extends BaseChatView {
         this.listenTo(this.model, 'change:show_help_messages', this.renderHelpMessages);
 
         await this.model.messages.fetched;
-        this.model.maybeShow();
-        this.scrollDown();
+        !this.model.get('hidden') && this.afterShown()
         /**
          * Triggered once the {@link _converse.ChatBoxView} has been initialized
          * @event _converse#chatBoxViewInitialized
@@ -472,10 +471,6 @@ export default class ChatView extends BaseChatView {
         }
     }
 
-    getOwnMessages () {
-        return this.model.messages.filter({ 'sender': 'me' });
-    }
-
     onEscapePressed (ev) {
         ev.preventDefault();
         const idx = this.model.messages.findLastIndex('correcting');
@@ -522,53 +517,6 @@ export default class ChatView extends BaseChatView {
         } else {
             message.save('correcting', false);
             this.insertIntoTextArea('', true, false);
-        }
-    }
-
-    editLaterMessage () {
-        let message;
-        let idx = this.model.messages.findLastIndex('correcting');
-        if (idx >= 0) {
-            this.model.messages.at(idx).save('correcting', false);
-            while (idx < this.model.messages.length - 1) {
-                idx += 1;
-                const candidate = this.model.messages.at(idx);
-                if (candidate.get('editable')) {
-                    message = candidate;
-                    break;
-                }
-            }
-        }
-        if (message) {
-            this.insertIntoTextArea(u.prefixMentions(message), true, true);
-            message.save('correcting', true);
-        } else {
-            this.insertIntoTextArea('', true, false);
-        }
-    }
-
-    editEarlierMessage () {
-        let message;
-        let idx = this.model.messages.findLastIndex('correcting');
-        if (idx >= 0) {
-            this.model.messages.at(idx).save('correcting', false);
-            while (idx > 0) {
-                idx -= 1;
-                const candidate = this.model.messages.at(idx);
-                if (candidate.get('editable')) {
-                    message = candidate;
-                    break;
-                }
-            }
-        }
-        message =
-            message ||
-            this.getOwnMessages()
-                .reverse()
-                .find(m => m.get('editable'));
-        if (message) {
-            this.insertIntoTextArea(u.prefixMentions(message), true, true);
-            message.save('correcting', true);
         }
     }
 
