@@ -23,6 +23,7 @@ export class RosterFilterView extends ElementView {
         model.id = `_converse.rosterfilter-${_converse.bare_jid}`;
         model.browserStorage = _converse.createStore(model.id);
         this.model = model;
+        _converse.roster_filter = model;
 
         this.liveFilter = debounce(() => {
             this.model.save({'filter_text': this.querySelector('.roster-filter').value});

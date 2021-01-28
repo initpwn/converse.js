@@ -1,8 +1,9 @@
 import tpl_group from "./group.js";
 import { __ } from 'i18n';
 import { _converse, api } from "@converse/headless/core";
+import { contactsComparator, groupsComparator } from '@converse/headless/plugins/roster/utils.js';
 import { html } from "lit-html";
-import { groupsComparator } from '@converse/headless/plugins/roster/utils.js';
+import { shouldShowContact, shouldShowGroup } from '../utils.js';
 
 
 function populateContactsMap (contacts_map, contact) {
@@ -39,7 +40,7 @@ export default () => {
     const contacts_map = {};
     const roster = _converse.roster || [];
     roster.forEach(contact => populateContactsMap(contacts_map, contact));
-    const groupnames = Object.keys(contacts_map);
+    const groupnames = Object.keys(contacts_map).filter(shouldShowGroup);
     groupnames.sort(groupsComparator);
 
     return html`
@@ -55,9 +56,11 @@ export default () => {
         <converse-roster-filter></converse-roster-filter>
         <div class="list-container roster-contacts">
             ${ groupnames?.map(name => {
-                if (contacts_map[name].length) {
+                const contacts = contacts_map[name].filter(c => shouldShowContact(c));
+                contacts.sort(contactsComparator);
+                if (contacts.length) {
                     return tpl_group({
-                        'contacts': contacts_map[name],
+                        'contacts': contacts,
                         'name': name,
                     });
                 } else {

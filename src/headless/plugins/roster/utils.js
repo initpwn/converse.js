@@ -15,12 +15,8 @@ export async function initRoster () {
     _converse.roster.data.id = id;
     _converse.roster.data.browserStorage = _converse.createStore(id);
     _converse.roster.data.fetch();
-
-    id = `converse.roster.groups${_converse.bare_jid}`;
-    _converse.rostergroups = new _converse.RosterGroups();
-    _converse.rostergroups.browserStorage = _converse.createStore(id);
     /**
-     * Triggered once the `_converse.RosterContacts` and `_converse.RosterGroups` have
+     * Triggered once the `_converse.RosterContacts`
      * been created, but not yet populated with data.
      * This event is useful when you want to create views for these collections.
      * @event _converse#chatBoxMaximized

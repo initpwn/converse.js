@@ -39,13 +39,11 @@ describe("The Protocol", function () {
          * stanza of type "result".
          */
         it("Subscribe to contact, contact accepts and subscribes back",
-            mock.initConverse(
-                ['rosterGroupsFetched'],
-                { roster_groups: false },
-                async function (done, _converse) {
+                mock.initConverse([], { roster_groups: false }, async function (done, _converse) {
 
             const { u, $iq, $pres, sizzle, Strophe } = converse.env;
             let contact, sent_stanza, IQ_id, stanza;
+            await mock.waitForRoster(_converse, 'current', 0);
             await mock.waitUntilDiscoConfirmed(_converse, 'montague.lit', [], ['vcard-temp']);
             await u.waitUntil(() => _converse.xmppstatus.vcard.get('fullname'), 300);
             /* The process by which a user subscribes to a contact, including
@@ -361,15 +359,14 @@ describe("The Protocol", function () {
         }));
 
         it("Alternate Flow: Contact Declines Subscription Request",
-            mock.initConverse(
-                ['rosterGroupsFetched'], {},
-                function (done, _converse) {
+                mock.initConverse([], {}, async function (done, _converse) {
 
             const { $iq, $pres } = converse.env;
             /* The process by which a user subscribes to a contact, including
              * the interaction between roster items and subscription states.
              */
             var contact, stanza, sent_stanza, sent_IQ;
+            await mock.waitForRoster(_converse, 'current', 0);
             mock.openControlBox(_converse);
             // Add a new roster contact via roster push
             stanza = $iq({'type': 'set'}).c('query', {'xmlns': 'jabber:iq:roster'})
@@ -445,10 +442,7 @@ describe("The Protocol", function () {
         }));
 
         it("Unsubscribe to a contact when subscription is mutual",
-            mock.initConverse(
-                ['rosterGroupsFetched'],
-                { roster_groups: false },
-                async function (done, _converse) {
+                mock.initConverse([], { roster_groups: false }, async function (done, _converse) {
 
             const { u, $iq, sizzle, Strophe } = converse.env;
             const jid = 'abram@montague.lit';
@@ -504,8 +498,7 @@ describe("The Protocol", function () {
         }));
 
         it("Receiving a subscription request", mock.initConverse(
-            ['rosterGroupsFetched'], {},
-            async function (done, _converse) {
+                [], {}, async function (done, _converse) {
 
             const { u, $pres, sizzle, Strophe } = converse.env;
             spyOn(_converse.api, "trigger").and.callThrough();

@@ -7,7 +7,7 @@ const u = converse.env.utils;
 describe("A Chat Message", function () {
 
     it("will be demarcated if it's the first newly received message",
-        mock.initConverse(['rosterGroupsFetched', 'chatBoxesFetched'], {},
+        mock.initConverse(['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current', 1);
@@ -35,7 +35,7 @@ describe("A Chat Message", function () {
 
     it("is rejected if it's an unencapsulated forwarded message",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current', 2);
@@ -80,7 +80,7 @@ describe("A Chat Message", function () {
 
     it("can be received out of order, and will still be displayed in the right order",
         mock.initConverse(
-            ['rosterGroupsFetched'], {},
+            ['rosterContactsFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -245,7 +245,7 @@ describe("A Chat Message", function () {
 
     it("is ignored if it's a malformed headline message",
             mock.initConverse(
-                ['rosterGroupsFetched'], {},
+                ['rosterContactsFetched'], {},
                 async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -274,7 +274,7 @@ describe("A Chat Message", function () {
 
     it("can be a carbon message, as defined in XEP-0280",
         mock.initConverse(
-            ['rosterGroupsFetched'], {},
+            ['rosterContactsFetched'], {},
             async function (done, _converse) {
 
         const include_nick = false;
@@ -325,7 +325,7 @@ describe("A Chat Message", function () {
 
     it("can be a carbon message that this user sent from a different client, as defined in XEP-0280",
         mock.initConverse(
-            ['rosterGroupsFetched'], {},
+            ['rosterContactsFetched'], {},
             async function (done, _converse) {
 
         await mock.waitUntilDiscoConfirmed(_converse, 'montague.lit', [], ['vcard-temp']);
@@ -372,7 +372,7 @@ describe("A Chat Message", function () {
 
     it("will be discarded if it's a malicious message meant to look like a carbon copy",
         mock.initConverse(
-            ['rosterGroupsFetched'], {},
+            ['rosterContactsFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -418,7 +418,7 @@ describe("A Chat Message", function () {
 
     it("will indicate when it has a time difference of more than a day between it and its predecessor",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         const include_nick = false;
@@ -510,7 +510,7 @@ describe("A Chat Message", function () {
 
     it("is sanitized to prevent Javascript injection attacks",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -530,7 +530,7 @@ describe("A Chat Message", function () {
 
     it("can contain hyperlinks, which will be clickable",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -552,7 +552,7 @@ describe("A Chat Message", function () {
 
     it("will remove url query parameters from hyperlinks as set",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'],
+            ['rosterContactsFetched', 'chatBoxesFetched'],
             {'filter_url_query_params': ['utm_medium', 'utm_content', 's']},
             async function (done, _converse) {
 
@@ -584,7 +584,7 @@ describe("A Chat Message", function () {
 
     it("will render newlines",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -635,7 +635,7 @@ describe("A Chat Message", function () {
 
     it("will render images from their URLs",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -687,7 +687,7 @@ describe("A Chat Message", function () {
 
     it("will render images from approved URLs only",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {'show_images_inline': ['conversejs.org']},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {'show_images_inline': ['conversejs.org']},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -711,7 +711,7 @@ describe("A Chat Message", function () {
 
     it("will fall back to rendering images as URLs",
         mock.initConverse(
-            ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+            ['rosterContactsFetched', 'chatBoxesFetched'], {},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -732,7 +732,7 @@ describe("A Chat Message", function () {
 
     it("will render the message time as configured",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -758,7 +758,7 @@ describe("A Chat Message", function () {
 
     it("will be correctly identified and rendered as a followup message",
         mock.initConverse(
-            ['rosterGroupsFetched'], {'debounced_content_rendering': false},
+            ['rosterContactsFetched'], {'debounced_content_rendering': false},
             async function (done, _converse) {
 
         await mock.waitForRoster(_converse, 'current');
@@ -920,7 +920,7 @@ describe("A Chat Message", function () {
 
         it("will appear inside the chatbox it was sent from",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current');
@@ -942,7 +942,7 @@ describe("A Chat Message", function () {
 
         it("will be trimmed of leading and trailing whitespace",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current', 1);
@@ -963,7 +963,7 @@ describe("A Chat Message", function () {
 
         it("will open a chatbox and be displayed inside it",
             mock.initConverse(
-                ['rosterGroupsFetched'], {},
+                ['rosterContactsFetched'], {},
                 async function (done, _converse) {
 
             const include_nick = false;
@@ -1009,7 +1009,7 @@ describe("A Chat Message", function () {
 
         it("will be trimmed of leading and trailing whitespace",
             mock.initConverse(
-                ['rosterGroupsFetched'], {},
+                ['rosterContactsFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current', 1, false);
@@ -1040,7 +1040,7 @@ describe("A Chat Message", function () {
 
             it("the VCard for that user is fetched and the chatbox updated with the results",
                 mock.initConverse(
-                    ['rosterGroupsFetched'], {'allow_non_roster_messaging': true},
+                    ['rosterContactsFetched'], {'allow_non_roster_messaging': true},
                     async function (done, _converse) {
 
                 await mock.waitForRoster(_converse, 'current', 0);
@@ -1094,7 +1094,7 @@ describe("A Chat Message", function () {
 
             it("will open a chatbox and be displayed inside it if allow_non_roster_messaging is true",
                 mock.initConverse(
-                    ['rosterGroupsFetched'], {'allow_non_roster_messaging': false},
+                    ['rosterContactsFetched'], {'allow_non_roster_messaging': false},
                     async function (done, _converse) {
 
                 await mock.waitForRoster(_converse, 'current', 0);
@@ -1150,7 +1150,7 @@ describe("A Chat Message", function () {
 
             it("will have the error message displayed after itself",
                 mock.initConverse(
-                    ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                    ['rosterContactsFetched', 'chatBoxesFetched'], {},
                     async function (done, _converse) {
 
                 await mock.waitForRoster(_converse, 'current', 1);
@@ -1275,7 +1275,7 @@ describe("A Chat Message", function () {
 
             it("will not show to the user an error message for a CSI message",
                 mock.initConverse(
-                    ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                    ['rosterContactsFetched', 'chatBoxesFetched'], {},
                     async function (done, _converse) {
 
                 // See #1317
@@ -1316,7 +1316,7 @@ describe("A Chat Message", function () {
 
         it("will cause the chat area to be scrolled down only if it was at the bottom originally",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current');
@@ -1353,7 +1353,7 @@ describe("A Chat Message", function () {
 
         it("is ignored if it's intended for a different resource and filter_by_resource is set to true",
             mock.initConverse(
-                ['rosterGroupsFetched'], {},
+                ['rosterContactsFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current');
@@ -1403,7 +1403,7 @@ describe("A Chat Message", function () {
 
         it("will render audio from oob mp3 URLs",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current', 1);
@@ -1453,7 +1453,7 @@ describe("A Chat Message", function () {
 
         it("will render video from oob mp4 URLs",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current', 1);
@@ -1499,7 +1499,7 @@ describe("A Chat Message", function () {
 
         it("will render download links for files from oob URLs",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
             await mock.waitForRoster(_converse, 'current', 1);
@@ -1528,7 +1528,7 @@ describe("A Chat Message", function () {
 
         it("will render images from oob URLs",
             mock.initConverse(
-                ['rosterGroupsFetched', 'chatBoxesFetched'], {},
+                ['rosterContactsFetched', 'chatBoxesFetched'], {},
                 async function (done, _converse) {
 
             const base_url = 'https://conversejs.org';
