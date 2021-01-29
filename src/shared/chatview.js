@@ -179,6 +179,17 @@ export default class BaseChatView extends ElementView {
         return this.model.messages.filter({ 'sender': 'me' });
     }
 
+    async clearMessages (ev) {
+        if (ev && ev.preventDefault) {
+            ev.preventDefault();
+        }
+        const result = confirm(__('Are you sure you want to clear the messages from this conversation?'));
+        if (result === true) {
+            await this.model.clearMessages();
+        }
+        return this;
+    }
+
     editEarlierMessage () {
         let message;
         let idx = this.model.messages.findLastIndex('correcting');
