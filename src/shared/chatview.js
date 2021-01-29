@@ -1,10 +1,10 @@
+import debounce from 'lodash/debounce';
 import log from '@converse/headless/log';
 import tpl_chatbox_message_form from 'templates/chatbox_message_form.js';
 import tpl_toolbar from 'templates/toolbar.js';
 import { ElementView } from '@converse/skeletor/src/element.js';
 import { __ } from 'i18n';
 import { _converse, api, converse } from '@converse/headless/core';
-import { debounce } from 'lodash-es';
 import { html, render } from 'lit-html';
 
 const u = converse.env.utils;
@@ -43,6 +43,21 @@ export default class BaseChatView extends ElementView {
         const msg_models = this.model.messages.models;
         const messages = msgs_by_ref ? msg_models : Array.from(msg_models);
         render(this.tpl_chat_content({ messages, 'notifications': this.getNotifications() }), this.msgs_container);
+    }
+
+    renderHelpMessages () {
+        render(
+            html`
+                <converse-chat-help
+                    .model=${this.model}
+                    .messages=${this.getHelpMessages()}
+                    ?hidden=${!this.model.get('show_help_messages')}
+                    type="info"
+                    chat_type="${this.model.get('type')}"
+                ></converse-chat-help>
+            `,
+            this.help_container
+        );
     }
 
     renderMessageForm () {
@@ -234,11 +249,49 @@ export default class BaseChatView extends ElementView {
         }
     }
 
+    showNewMessagesIndicator () {
+        u.showElement(this.querySelector('.new-msgs-indicator'));
+    }
+
+    onMessageAdded (message) {
+        this.renderChatHistory();
+
+        if (u.isNewMessage(message)) {
+            if (message.get('sender') === 'me') {
+                // We remove the "scrolled" flag so that the chat area
+                // gets scrolled down. We always want to scroll down
+                // when the user writes a message as opposed to when a
+                // message is received.
+                this.model.set('scrolled', false);
+            } else if (this.model.get('scrolled', true)) {
+                this.showNewMessagesIndicator();
+            }
+        }
+    }
+
     onEmojiReceivedFromPicker (emoji) {
         const model = this.querySelector('converse-emoji-picker').model;
         const autocompleting = model.get('autocompleting');
         const ac_position = model.get('ac_position');
         this.insertIntoTextArea(emoji, autocompleting, false, ac_position);
+    }
+
+    onMessageEditButtonClicked (message) {
+        const currently_correcting = this.model.messages.findWhere('correcting');
+        const unsent_text = this.querySelector('.chat-textarea')?.value;
+        if (unsent_text && (!currently_correcting || currently_correcting.get('message') !== unsent_text)) {
+            if (!confirm(__('You have an unsent message which will be lost if you continue. Are you sure?'))) {
+                return;
+            }
+        }
+        if (currently_correcting !== message) {
+            currently_correcting?.save('correcting', false);
+            message.save('correcting', true);
+            this.insertIntoTextArea(u.prefixMentions(message), true, true);
+        } else {
+            message.save('correcting', false);
+            this.insertIntoTextArea('', true, false);
+        }
     }
 
     /**
